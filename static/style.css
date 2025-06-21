@@ -1,0 +1,28 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    padding: 20px;
+}
+
+.alert {
+    margin-top: 20px;
+}
+
+.form-control {
+    margin-bottom: 15px;
+}
+
+.list-group-item {
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    margin-top: 20px;
+}

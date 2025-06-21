@@ -1,0 +1,14 @@
+flask
+flask-sqlalchemy
+flask-login
+flask-mail
+werkzeug
+requests
+validators
+beautifulsoup4
+wordcloud
+matplotlib
+numpy
+pillow
+PyPDF2
+tldextract

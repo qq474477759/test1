@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2 class="mb-4">Start New Search</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="url" class="form-label">Website URL</label>
+                <input type="url" class="form-control" id="url" name="url" 
+                       placeholder="https://www.example.com" required>
+            </div>
+            <div class="mb-3">
+                <label for="level" class="form-label">Crawl Level</label>
+                <select class="form-select" id="level" name="level">
+                    <option value="1">Level 1 - Base URL only</option>
+                    <option value="2">Level 2 - Same domain links</option>
+                    <option value="3">Level 3 - All domains</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Start Crawling</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

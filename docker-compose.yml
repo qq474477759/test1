@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  web-crawler:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./instance:/app/instance
+    environment:
+      - SECRET_KEY=abc123
+      - MAIL_SERVER=your_smtp_server
+      - MAIL_PORT=587
+      - MAIL_USE_TLS=True
+      - MAIL_USERNAME=your_email
+      - MAIL_PASSWORD=your_email_password

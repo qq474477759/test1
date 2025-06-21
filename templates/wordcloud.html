@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Word Cloud Generator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2 class="mb-4">Generate Word Cloud</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Select PDFs:</label>
+                {% if pdfs %}
+                    {% for pdf in pdfs %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="pdf_ids" value="{{ pdf.id }}">
+                            <label class="form-check-label">
+                                {{ pdf.filename }} ({{ pdf.timestamp.strftime('%Y-%m-%d') }})
+                            </label>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No PDFs found in your history.</p>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Or select by date range:</label>
+                <div class="row">
+                    <div class="col">
+                        <input type="datetime-local" class="form-control" name="start_date">
+                    </div>
+                    <div class="col">
+                        <input type="datetime-local" class="form-control" name="end_date">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Word Cloud</button>
+        </form>
+
+        {% if wordcloud_image %}
+            <div class="mt-4">
+                <h3>Generated Word Cloud</h3>
+                <img src="data:image/png;base64,{{ wordcloud_image }}" class="img-fluid" alt="Word Cloud">
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

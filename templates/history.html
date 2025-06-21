@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Search History{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="my-4">Search History</h2>
+
+    <!-- Word Search Form -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Search in PDFs</h5>
+            <form method="GET" action="{{ url_for('history') }}">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search_term"
+                           placeholder="Enter a word to search in PDFs"
+                           value="{{ request.args.get('search_term', '') }}">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                    {% if request.args.get('search_term') %}
+                    <a href="{{ url_for('history') }}" class="btn btn-outline-secondary">Clear</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results or History -->
+    {% if request.args.get('search_term') %}
+        <!-- Word Search Results -->
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                Search Results for: "{{ request.args.get('search_term') }}"
+            </div>
+            <div class="card-body">
+                {% set search_word = request.args.get('search_term').lower() %}
+                {% set found_pdfs = [] %}
+
+                {% for search in searches %}
+                    {% for pdf in search.pdfs %}
+                        {% if search_word in pdf.word_stats.keys()|map('lower') %}
+                            {% set found_pdfs = found_pdfs.append(pdf) or found_pdfs %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+
+                {% if found_pdfs %}
+                    <div class="list-group">
+                        {% for pdf in found_pdfs %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a href="{{ url_for('download_pdf', filename=pdf.filename) }}"
+                                       class="text-decoration-none fw-bold">
+                                        {{ pdf.original_url|truncate(80) }}
+                                    </a>
+                                    <div class="mt-2">
+                                        <span class="badge bg-info text-dark me-2">
+                                            {{ pdf.word_stats[search_word] }} occurrences
+                                        </span>
+                                        <small class="text-muted">
+                                            From search on {{ pdf.search.timestamp.strftime('%Y-%m-%d') }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('download_pdf', filename=pdf.filename) }}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Download
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        No PDFs found containing "{{ request.args.get('search_term') }}" in top words.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Full Search History -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Your Crawl History</h5>
+        </div>
+        <div class="card-body">
+            {% if searches %}
+            <div class="list-group">
+                {% for search in searches %}
+                <div class="list-group-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <h5>{{ search.url }}</h5>
+                        <small class="text-muted">{{ search.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    <p class="mb-1">Level {{ search.level }} crawl</p>
+
+                    {% if search.pdfs %}
+                    <div class="mt-3">
+                        <h6>Found PDFs ({{ search.pdfs|length }}):</h6>
+                        <div class="list-group">
+                            {% for pdf in search.pdfs %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <a href="{{ url_for('download_pdf', filename=pdf.filename) }}"
+                                           class="text-decoration-none">
+                                            {{ pdf.original_url|truncate(70) }}
+                                        </a>
+                                        <div class="mt-2">
+                                            <div class="mb-2">
+                                                {% for word, count in pdf.word_stats.items() %}
+                                                <span class="badge {% if request.args.get('search_term') and word.lower() == request.args.get('search_term').lower() %}bg-success{% else %}bg-light text-dark{% endif %} me-1 mb-1">
+                                                    {{ word }} ({{ count }})
+                                                </span>
+                                                {% endfor %}
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-download"></i>
+                                                <a href="{{ url_for('download_pdf', filename=pdf.filename) }}"
+                                                   class="text-decoration-none">
+                                                    Download PDF
+                                                </a>
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item"
+                                                   href="{{ url_for('download_pdf', filename=pdf.filename) }}">
+                                                    <i class="fas fa-download me-2"></i>Download
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item"
+                                                   href="{{ url_for('wordcloud') }}?pdf_ids={{ pdf.id }}">
+                                                    <i class="fas fa-cloud me-2"></i>Word Cloud
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mt-2">No PDFs found in this search</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No search history yet. Start by entering a URL to crawl.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .word-badge {
+        transition: all 0.2s;
+    }
+    .word-badge:hover {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}

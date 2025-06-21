@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Search PDFs{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="mb-4">Search PDFs</h2>
+        <form method="POST">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="search_term" placeholder="Search word..." required>
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+
+        {% if results %}
+            <h4>Results for "{{ search_term }}"</h4>
+            <div class="list-group mt-3">
+                {% for result in results %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <h5>{{ result.pdf.filename }}</h5>
+                            <span class="badge bg-primary rounded-pill">{{ result.count }} occurrences</span>
+                        </div>
+                        <p class="mb-1">From search: {{ result.search_log.url }} (Level {{ result.search_log.level }})</p>
+                        <small class="text-muted">Found on {{ result.pdf.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                        <div class="mt-2">
+                            <a href="{{ url_for('download_pdf', filename=result.pdf.filename) }}" class="btn btn-sm btn-outline-primary">Download PDF</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif search_term %}
+            <div class="alert alert-info mt-3">No PDFs found containing "{{ search_term }}" in top words</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
